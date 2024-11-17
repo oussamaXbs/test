@@ -1,15 +1,20 @@
 from flask import Flask, jsonify
 import pymysql
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 
-# Database configuration
+# Database configuration from environment variables
 db_config = {
-    "host": "mychatappservice-server.mysql.database.azure.com",
-    "user": "rxalspiqjj",
-    "password": "96$WOUAb4Z9dWVtV",
-    "database": "mychatappservice-database",
-    "ssl": {"ca": "/path/to/BaltimoreCyberTrustRoot.crt.pem"}  # Add the correct path to SSL cert
+    "host": os.getenv("AZURE_MYSQL_HOST"),
+    "user": os.getenv("AZURE_MYSQL_USER"),
+    "password": os.getenv("AZURE_MYSQL_PASSWORD"),
+    "database": os.getenv("AZURE_MYSQL_NAME"),
+    "ssl": {"ca": "/path/to/BaltimoreCyberTrustRoot.crt.pem"}  # Update with your SSL path
 }
 
 @app.route('/')
@@ -18,7 +23,7 @@ def home():
         # Connect to the database
         connection = pymysql.connect(**db_config)
         with connection.cursor() as cursor:
-            cursor.execute("SELECT NOW();")  # Test query to fetch current time
+            cursor.execute("SELECT NOW();")
             result = cursor.fetchone()
         connection.close()
         return jsonify({"message": "Connection successful!", "current_time": result[0]})
